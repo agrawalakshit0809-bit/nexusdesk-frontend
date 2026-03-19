@@ -7,7 +7,7 @@ import { firstValueFrom } from 'rxjs';
 })
 export class ChatService {
   private http = inject(HttpClient);
-  private apiUrl = 'http://localhost:3000/api/chat';
+  private apiUrl = 'https://nexusdesk-backend.onrender.com/api/chat';
 
   async sendMessage(message: string): Promise<string> {
     try {
