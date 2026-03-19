@@ -1,0 +1,183 @@
+<div class="nd-app">
+
+  <!-- Sidebar -->
+  <aside class="nd-sidebar">
+    <div class="nd-sidebar-header">
+      <div class="nd-brand">
+        <div class="nd-brand-icon">N</div>
+        <div>
+          <h1 class="nd-brand-name">NexusDesk</h1>
+          <p class="nd-brand-sub">Support Portal</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="nd-sidebar-status">
+      <div class="nd-status-card">
+        <div class="nd-status-indicator"></div>
+        <div>
+          <p class="nd-status-label">AI Assistant</p>
+          <p class="nd-status-value">Online & Ready</p>
+        </div>
+      </div>
+    </div>
+
+    <nav class="nd-sidebar-nav">
+      <p class="nd-nav-label">Quick Topics</p>
+      @for (suggestion of suggestions; track suggestion) {
+        <button class="nd-nav-item" (click)="message.set(suggestion); sendMessage()">
+          <i class="bi bi-chevron-right nd-nav-icon"></i>
+          {{ suggestion }}
+        </button>
+      }
+    </nav>
+
+    <div class="nd-sidebar-footer">
+      <div class="nd-powered">
+        <span>Powered by</span>
+        <strong>RAG + Llama 3.3</strong>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <div class="nd-main">
+
+    <!-- Top Bar -->
+    <header class="nd-topbar">
+      <div class="nd-topbar-left">
+        <div class="nd-chat-icon">
+          <i class="bi bi-headset"></i>
+        </div>
+        <div>
+          <h2 class="nd-chat-title">Customer Support</h2>
+          <p class="nd-chat-sub">Ask anything about our products & services</p>
+        </div>
+      </div>
+      @if (history().length > 0) {
+        <button class="nd-clear-btn" (click)="clearChat()">
+          <i class="bi bi-arrow-counterclockwise"></i>
+          New Chat
+        </button>
+      }
+    </header>
+
+    <!-- Messages -->
+    <main #chatContainer class="nd-messages">
+
+      <!-- Empty State -->
+      @if (history().length === 0 && !loading()) {
+        <div class="nd-welcome">
+          <div class="nd-welcome-icon">
+            <i class="bi bi-chat-square-dots-fill"></i>
+          </div>
+          <h3>How can we help you today?</h3>
+          <p>Our AI assistant can answer questions about orders, accounts, billing, and more.</p>
+          <div class="nd-welcome-cards">
+            <div class="nd-welcome-card">
+              <i class="bi bi-shield-check"></i>
+              <span>Instant answers</span>
+            </div>
+            <div class="nd-welcome-card">
+              <i class="bi bi-clock-history"></i>
+              <span>24/7 available</span>
+            </div>
+            <div class="nd-welcome-card">
+              <i class="bi bi-database-check"></i>
+              <span>Knowledge base powered</span>
+            </div>
+          </div>
+        </div>
+      }
+
+      <!-- Chat Messages -->
+      @for (item of history(); track item.id) {
+
+        @if (item.sender === 'user') {
+          <div class="nd-msg nd-msg-user">
+            <div class="nd-msg-content">
+              <div class="nd-msg-bubble nd-msg-bubble-user">
+                {{ item.message }}
+              </div>
+              <p class="nd-msg-time">You · {{ formatTime(item.timestamp) }}</p>
+            </div>
+            <div class="nd-avatar nd-avatar-user">
+              <i class="bi bi-person-fill"></i>
+            </div>
+          </div>
+        }
+
+        @if (item.sender === 'bot') {
+          <div class="nd-msg nd-msg-bot">
+            <div class="nd-avatar nd-avatar-bot">
+              <i class="bi bi-headset"></i>
+            </div>
+            <div class="nd-msg-content">
+              <div class="nd-msg-bubble nd-msg-bubble-bot nd-markdown"
+                   [innerHTML]="renderMarkdown(item.message)">
+              </div>
+              <div class="nd-msg-footer">
+                <p class="nd-msg-time">NexusDesk · {{ formatTime(item.timestamp) }}</p>
+                <button class="nd-copy-btn" (click)="copyMessage(item)">
+                  <i class="bi" [class]="copiedId() === item.id ? 'bi-check-lg' : 'bi-clipboard'"></i>
+                  {{ copiedId() === item.id ? 'Copied!' : 'Copy' }}
+                </button>
+              </div>
+            </div>
+          </div>
+        }
+      }
+
+      <!-- Loading -->
+      @if (loading()) {
+        <div class="nd-msg nd-msg-bot">
+          <div class="nd-avatar nd-avatar-bot">
+            <i class="bi bi-headset"></i>
+          </div>
+          <div class="nd-msg-content">
+            <div class="nd-typing">
+              <span class="nd-typing-dot"></span>
+              <span class="nd-typing-dot"></span>
+              <span class="nd-typing-dot"></span>
+              <span class="nd-typing-label">NexusDesk is typing...</span>
+            </div>
+          </div>
+        </div>
+      }
+
+      <!-- Error -->
+      @if (error()) {
+        <div class="nd-error-banner">
+          <i class="bi bi-exclamation-triangle-fill"></i>
+          {{ error() }}
+        </div>
+      }
+
+    </main>
+
+    <!-- Input Area -->
+    <footer class="nd-input-area">
+      <div class="nd-input-box">
+        <i class="bi bi-chat-dots nd-input-icon"></i>
+        <input
+          type="text"
+          [ngModel]="message()"
+          (ngModelChange)="message.set($event)"
+          (keyup.enter)="sendMessage()"
+          [disabled]="loading()"
+          placeholder="Type your question here..."
+          class="nd-input"
+        />
+        <button
+          (click)="sendMessage()"
+          [disabled]="!message().trim() || loading()"
+          class="nd-send-btn">
+          <i class="bi bi-send-fill"></i>
+          <span>Send</span>
+        </button>
+      </div>
+      <p class="nd-disclaimer">Responses are generated from our knowledge base using AI</p>
+    </footer>
+
+  </div>
+</div>
