@@ -22,6 +22,7 @@ export class ChatComponent implements AfterViewChecked {
   error: WritableSignal<any> = signal(null);
   message: WritableSignal<string> = signal('');
   copiedId: WritableSignal<number | null> = signal(null);
+  showSidebar: WritableSignal<boolean> = signal(false);
 
   private chatService = inject(ChatService);
   private shouldScroll = false;

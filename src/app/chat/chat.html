@@ -1,7 +1,12 @@
 <div class="nd-app">
 
+  <!-- Mobile Overlay -->
+  @if (showSidebar()) {
+    <div class="nd-overlay" (click)="showSidebar.set(false)"></div>
+  }
+
   <!-- Sidebar -->
-  <aside class="nd-sidebar">
+  <aside class="nd-sidebar" [class.nd-sidebar-open]="showSidebar()">
     <div class="nd-sidebar-header">
       <div class="nd-brand">
         <div class="nd-brand-icon">N</div>
@@ -10,6 +15,9 @@
           <p class="nd-brand-sub">Support Portal</p>
         </div>
       </div>
+      <button class="nd-sidebar-close" (click)="showSidebar.set(false)">
+        <i class="bi bi-x-lg"></i>
+      </button>
     </div>
 
     <div class="nd-sidebar-status">
@@ -25,7 +33,7 @@
     <nav class="nd-sidebar-nav">
       <p class="nd-nav-label">Quick Topics</p>
       @for (suggestion of suggestions; track suggestion) {
-        <button class="nd-nav-item" (click)="message.set(suggestion); sendMessage()">
+        <button class="nd-nav-item" (click)="message.set(suggestion); sendMessage(); showSidebar.set(false)">
           <i class="bi bi-chevron-right nd-nav-icon"></i>
           {{ suggestion }}
         </button>
@@ -46,6 +54,9 @@
     <!-- Top Bar -->
     <header class="nd-topbar">
       <div class="nd-topbar-left">
+        <button class="nd-menu-btn" (click)="showSidebar.set(true)">
+          <i class="bi bi-list"></i>
+        </button>
         <div class="nd-chat-icon">
           <i class="bi bi-headset"></i>
         </div>
@@ -57,7 +68,7 @@
       @if (history().length > 0) {
         <button class="nd-clear-btn" (click)="clearChat()">
           <i class="bi bi-arrow-counterclockwise"></i>
-          New Chat
+          <span class="nd-clear-text">New Chat</span>
         </button>
       }
     </header>
@@ -84,8 +95,16 @@
             </div>
             <div class="nd-welcome-card">
               <i class="bi bi-database-check"></i>
-              <span>Knowledge base powered</span>
+              <span>Knowledge base</span>
             </div>
+          </div>
+          <!-- Mobile suggestion chips -->
+          <div class="nd-mobile-suggestions">
+            @for (suggestion of suggestions; track suggestion) {
+              <button class="nd-mobile-chip" (click)="message.set(suggestion); sendMessage()">
+                {{ suggestion }}
+              </button>
+            }
           </div>
         </div>
       }
@@ -173,7 +192,7 @@
           [disabled]="!message().trim() || loading()"
           class="nd-send-btn">
           <i class="bi bi-send-fill"></i>
-          <span>Send</span>
+          <span class="nd-send-text">Send</span>
         </button>
       </div>
       <p class="nd-disclaimer">Responses are generated from our knowledge base using AI</p>
